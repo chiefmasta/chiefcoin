@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 19 16:04:22 2022
-
-@author: ChiefMasta
-"""
-
 import datetime
 import hashlib
 import json
@@ -81,7 +73,6 @@ class Blockchain:
     def add_node(self, address):
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
-        return True
 
     def replace_chain(self):
         network = self.nodes
@@ -104,7 +95,7 @@ class Blockchain:
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
-# Creating an address for the node on Port 6000
+# Creating an address for the node on Port 6001
 node_address = str(uuid4()).replace('-', '')
 
 # Creating a Blockchain
@@ -117,7 +108,7 @@ def mine_block():
     previous_proof = previous_block['proof']
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-    blockchain.add_transaction(sender = node_address, receiver = 'Anas', amount = '1')
+    blockchain.add_transaction(sender = node_address, receiver = 'Chiefmasta', amount = '1')
     new_block = blockchain.create_block(proof, previous_hash)
     response = {
         'message': 'Congratulations, you just mined a block!',
@@ -142,7 +133,7 @@ def get_chain():
 # Adding a transaction to the blockchain
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
-    json = request.get_json()
+    json = request.get_json(force=True, silent=True, cache=False)
     transaction_keys = ['sender', 'receiver', 'amount']
     if not all (key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing !', 400
@@ -165,7 +156,7 @@ def is_valid():
 # Connection new nodes
 @app.route('/connect_node', methods=['POST'])
 def connect_node():
-    json = request.get_json()
+    json = request.get_json(force=True, silent=True, cache=False)
     nodes = json.get('nodes')
     if nodes is None:
         return "No nodes !", 400
@@ -194,4 +185,4 @@ def replace_chain():
     return jsonify(response), 200
 
 # Running the app
-app.run(host = "0.0.0.0", port = (6000))
+app.run(host = "0.0.0.0", port = (6001))
